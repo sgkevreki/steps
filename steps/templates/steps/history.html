@@ -1,0 +1,9 @@
+{% if latest_dailysteps_list %}
+    <ul>
+    {% for dailysteps in latest_dailysteps_list %}
+        <li>{{ dailysteps.steps_input }} steps on {{dailysteps.steps_date}}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No steps are available.</p>
+{% endif %}
