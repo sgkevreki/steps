@@ -17,7 +17,12 @@ def index(request):
       form.save()
   else:
       form = DailyStepsForm()
-  return render(request, 'steps/index.html', {'form': form})
+  latest_dailysteps_list = DailySteps.objects.order_by('-steps_date')
+  # if request.method == "ACTION":
+  #   latest_dailysteps_list = DailySteps.objects.order_by('-steps_date')
+  #   context = {'latest_dailysteps_list': latest_dailysteps_list}
+
+  return render(request, 'steps/index.html', {'form': form,'latest_dailysteps_list': latest_dailysteps_list }, )
 
 # class index(CreateView):
 #     model = DailySteps
