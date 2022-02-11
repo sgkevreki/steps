@@ -15,7 +15,7 @@ class DailySteps(models.Model):
         unique=True,
         validators= [ 
             MaxValueValidator(datetime.date.today, 
-            message="The date cannot be in the future")
+            message="The date cannot be in the future.")
         ]
     )
     def __str__(self):

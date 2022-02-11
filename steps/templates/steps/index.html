@@ -1,13 +1,6 @@
-<!-- <div class="container">
-    <form method="POST">
-      <fieldset>
-        <legend>StepTracking</legend>
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary"><a href="history/">Submit</a></button>
-      </fieldset>
-    </form>
-</div> -->
+{% extends 'partials/base.html' %}
+{% block content %}
+
 
 {% load static %}
 <!DOCTYPE html>
@@ -15,10 +8,12 @@
 
 <head>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>eStartup Bootstrap Template - Index</title>
+  <title>StepTracker</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -62,8 +57,8 @@
       <nav id="navbar" class="navbar">
         <ul>
           <li><a class="nav-link scrollto active" href="#hero">Home</a></li>
-          <li><a class="nav-link scrollto" href="#about-us">Add Steps</a></li>
-          <li><a class="nav-link scrollto" href="#features">History</a></li>
+          <li><a class="nav-link scrollto" href="#add-steps">Add Steps</a></li>
+          <li><a class="nav-link scrollto" href="#history">History</a></li>
         </ul>
         <i class="bi bi-list mobile-nav-toggle"></i>
       </nav><!-- .navbar -->
@@ -76,21 +71,17 @@
     <div class="hero-container" data-aos="fade-in">
       <h1>Welcome to StepTracker</h1>
       <h2>An easy way to track your daily steps</h2>
-      <img src="{% static 'steps/img/hero-img.png' %}" alt="Hero Imgs" data-aos="zoom-out" data-aos-delay="100">
-      <a href="#about-us" class="btn-get-started scrollto">Get Started</a>
+      <img src="{% static 'steps/img/hero-img2.png' %}" alt="Hero Imgs" data-aos="zoom-out" data-aos-delay="100">
+      <a href="#add-steps" class="btn-get-started scrollto">Get Started</a>
     </div>
   </section><!-- End Hero Section -->
 
   <main id="main">
 
-    <!-- ======= Get Started Section ======= -->
-    <section id="get-started" class="padd-section text-center">
+    <section id="get-started" class="padd-section text-center"></section>
 
-
-    </section><!-- End Get Started Section -->
-
-        <!-- ======= About Us Section ======= -->
-        <section id="about-us" class="about-us padd-section">
+        <!-- ======= Add Steps Section ======= -->
+        <section id="add-steps" class="about-us padd-section">
           <div class="container" data-aos="fade-up">
             <div class="row justify-content-center">
     
@@ -99,48 +90,87 @@
     
                   <h2>Add today's steps</h2>
 
-                  <form id="hey" method="POST">
+                  <!-- === Steps/Date Form === -->
+                  <form action="#add-steps" method="POST">
                     <fieldset>
                       {% csrf_token %}
-                      {{ form.as_p }}
-                      <button id= "sup" type="submit" class="btn btn-primary">Submit</button>
-                        <!-- <input type="submit" value="Submit" /> -->
+                      {{ form_steps.as_p }}
+                      <button type="submit" name="submit1" class="btn btn-success">Submit</button>
                     </fieldset>
                   </form>  
+                  <!-- -->
 
                 </div>
               </div>
     
             </div>
           </div>
-        </section><!-- End About Us Section -->
+        </section><!-- End Add Steps Section -->
 
-        <!-- ======= Features Section ======= -->
-    <section id="features" class="padd-section text-center">
+        <!-- ======= History Section ======= -->
+    <section id="history" class="padd-section text-center">
 
       <div class="container" data-aos="fade-up">
-        <div class="section-title text-center">
-          <h2>Keep track of your steps</h2>
-          <p class="separator">Integer cursus bibendum augue ac cursus .</p>
+        <div class="row justify-content-center">
+
+          <div class="section-title text-center">
+            <h2>Keep track of your steps</h2>
+            <p class="separator">Select time period below</p>
+          </div>
+
+
+          <!-- === Date Range Form === -->
+          <form action="#history" method="POST">
+            <fieldset>
+              {% csrf_token %}
+
+              <pre class="separator">Start Date:  {{form_date_range.start_date}}      End Date:  {{form_date_range.end_date}}</pre>
+
+              <p><p>
+                <button type="submit" name="submit2" class="btn btn-success">Submit</button>
+              </p></p>
+                <!-- <input type="submit" value="Submit" /> -->
+            </fieldset>
+          </form>
+          <!-- -->
+
+
+          <!-- === Bar Chart === -->
+          <div class="col-md-8 padd-section">
+            <canvas id="myChart" width="400" height="400"></canvas>
+            <script>
+            const ctx = document.getElementById('myChart').getContext('2d');
+            const myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [{% for dailysteps in steps_all %}  '{{dailysteps.steps_date}}',  {% endfor %}],
+                    datasets: [{
+                        label: '# of Steps',
+                        data: [{% for dailysteps in steps_all %}  {{ dailysteps.steps_input }},  {% endfor %}],
+                        backgroundColor: [
+                        {% for dailysteps in steps_all %}  'rgba(113, 197, 93, 0.4)',  {% endfor %}
+                        ],
+                        borderColor: [
+                        {% for dailysteps in steps_all %}  'rgba(0, 0, 205, 0.8)',  {% endfor %}
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            </script>
+          </div>
+          <!-- -->
+
         </div>
-
-
-        <!-- <form method="ACTION"> -->
-        {% if latest_dailysteps_list %}
-          <ul style="list-style: none;">
-          {% for dailysteps in latest_dailysteps_list %}
-            <li>{{ dailysteps.steps_input }} steps on {{dailysteps.steps_date}}</li>
-          {% endfor %}
-          </ul>
-        {% else %}
-          <p>No steps are available.</p>
-        {% endif %}
-        <!-- </form> -->
-
-        <div class="row" data-aos="fade-up" data-aos-delay="100">
-
       </div>
-    </section><!-- End Features Section -->
+    </section><!-- End History Section -->
 
 
 
@@ -161,37 +191,6 @@
 
 </body>
 
-<!-- <script type="text/javascript">
-  $(document).on('submit', '#hey', function(e){
-    e.preventDefault();
-    // var hey = $("#hey")
-    $.ajax({
-      url: '',
-      type:'POST',
-      // data: hey.serialize(),
-      data: {
-        submit:$('#hey'),
-        csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
-      },
-      // dataType: "json",
-      // header: { 'X-CSRFToken' : '{% csrf_token %}'},
-      // success: function (response) {
-      //   var success = response['success']
-      //   if (success) {
-      //     alert("Succcceessss");
-      //   } else {
-      //     alert("ffff");
-      //   }
-      // },
-      // failure: function (error) {
-      //   alert("Errrrorrr");
-      // }
-      success: function (data) {
-
-        alert("dasda");
-      }
-    })
-  })
-</script> -->
-
 </html>
+
+{% endblock %}

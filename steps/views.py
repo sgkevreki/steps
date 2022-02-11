@@ -1,50 +1,33 @@
 from re import template
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 
 from django.http import HttpResponse
 from django.template import loader
 
+from django.http import JsonResponse
 
 from .models import DailySteps
-from .forms import DailyStepsForm
+from .forms import DailyStepsForm, DateFieldForm
 
 
 def index(request):
-    # return render(request, 'steps/index.html')
-  if request.method == "POST":
-    form = DailyStepsForm(request.POST)
-    if form.is_valid():
-      form.save()
+  if request.method == "POST" and 'submit1' in request.POST:
+    form_steps = DailyStepsForm(request.POST)
+    if form_steps.is_valid():
+      form_steps.save()
+      return redirect('index')
   else:
-      form = DailyStepsForm()
-  latest_dailysteps_list = DailySteps.objects.order_by('-steps_date')
-  return render(request, 'steps/index.html', {'form': form,'latest_dailysteps_list': latest_dailysteps_list }, )
+    form_steps = DailyStepsForm()
 
-
-
-# class index(CreateView):
-#     model = DailySteps
-#     form_class = DailyStepsForm
-
-
-def history(request):
-    latest_dailysteps_list = DailySteps.objects.order_by('-steps_date')
-    context = {'latest_dailysteps_list': latest_dailysteps_list}
-    return render(request, 'steps/history.html', context)
-
-
-# def index(request):
-#     # return render(request, 'steps/index.html')
-#   if request.method == "POST" and request.is_ajax():
-#     form = DailyStepsForm(request.POST)
-#     data = {}
-#     if form.is_valid():
-#       form.save()
-#       data['success'] = True
-#       return HttpResponse(json.dumps(data), content_type = 'application/json')
-#     else:
-#       data['success'] = False
-#       return HttpResponse(json.dumps(data), content_type = 'application/json')
-#   else:
-#       form = DailyStepsForm()
-#       return render(request, 'steps/index.html', {'form': form })
+  if request.method == "POST" and 'submit2' in request.POST:
+    form_date_range = DateFieldForm(request.POST)
+    if form_date_range.is_valid():
+      cd = form_date_range.cleaned_data
+      start_date = cd.get('start_date')
+      end_date = cd.get('end_date')
+      steps_all = DailySteps.objects.order_by('steps_date').filter(steps_date__range=[start_date, end_date])
+  else:
+    steps_all = DailySteps.objects.order_by('steps_date')
+    form_date_range = DateFieldForm()
+   
+  return render(request, 'steps/index.html', {'form_steps': form_steps, 'form_date_range': form_date_range, 'steps_all': steps_all},  )

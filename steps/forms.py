@@ -17,6 +17,10 @@ class DailyStepsForm(ModelForm):
     }
     error_messages = {
             'steps_date': {
-                'unique': 'This Date Already Exists' 
+                'unique': 'Date filled out.' 
                 }
     }
+
+class DateFieldForm(forms.Form):
+    start_date = forms.DateField(label = 'Start Date ', widget = DateInput())
+    end_date = forms.DateField(label = 'End Date ', widget = DateInput())
