@@ -95,7 +95,7 @@
                     <fieldset>
                       {% csrf_token %}
                       {{ form_steps.as_p }}
-                      <button type="submit" name="submit1" class="btn btn-success">Submit</button>
+                      <button type="submit" name="add_steps_btn" class="btn btn-success">Submit</button>
                     </fieldset>
                   </form>  
                   <!-- -->
@@ -127,7 +127,7 @@
               <pre class="separator">Start Date:  {{form_date_range.start_date}}      End Date:  {{form_date_range.end_date}}</pre>
 
               <p><p>
-                <button type="submit" name="submit2" class="btn btn-success">Submit</button>
+                <button type="submit" name="date_range_btn" class="btn btn-success">Submit</button>
               </p></p>
                 <!-- <input type="submit" value="Submit" /> -->
             </fieldset>
@@ -143,7 +143,7 @@
             const myChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: [{% for dailysteps in steps_all %}  '{{dailysteps.steps_date}}',  {% endfor %}],
+                    labels: [ {% for date in steps_all %} '{{date.steps_date}}', {% endfor %}],
                     datasets: [{
                         label: '# of Steps',
                         data: [{% for dailysteps in steps_all %}  {{ dailysteps.steps_input }},  {% endfor %}],
@@ -158,9 +158,11 @@
                 },
                 options: {
                     scales: {
-                        y: {
+                        yAxes: [{
+                          ticks: {
                             beginAtZero: true
-                        }
+                          }
+                        }]
                     }
                 }
             });
